@@ -6,7 +6,7 @@ KUNCI_GEMINI = os.environ.get("KUNCI_GEMINI")
 genai.configure(api_key=KUNCI_GEMINI)
 
 # 2. Menyalakan otak AI
-model = genai.GenerativeModel('gemini-1.5-pro-latest')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 print("Memulai produksi konten hari ini...")
 print("1. Meminta Gemini menulis naskah teknologi masa depan...")
