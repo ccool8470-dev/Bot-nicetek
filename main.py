@@ -1,31 +1,34 @@
-import os
-import google.generativeai as genai
+name: Pabrik Youtube Bot
 
-# 1. Mengambil kunci rahasia dari brankas GitHub
-KUNCI_GEMINI = os.environ.get("KUNCI_GEMINI")
-genai.configure(api_key=KUNCI_GEMINI)
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 
-# 2. Menyalakan otak AI
-model = genai.GenerativeModel('gemini-1.5-flash')
+jobs:
+  produksi-video:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mengambil kode mesin
+        uses: actions/checkout@v4
 
-print("Memulai produksi konten hari ini...")
-print("1. Meminta Gemini menulis naskah teknologi masa depan...")
+      - name: Menyiapkan Komputer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-# Perintah untuk AI
-prompt = "Buatkan naskah video YouTube Shorts (durasi 1 menit) tentang teknologi masa depan. Gunakan gaya bahasa Indonesia yang misterius, keren, dan memancing rasa penasaran penonton. Jangan gunakan emoji atau tanda bintang."
+      - name: Menginstal Alat Baru
+        run: pip install google-genai edge-tts
 
-respons = model.generate_content(prompt)
-naskah = respons.text.strip().replace('"', '')
+      - name: Menjalankan Produksi Video
+        env:
+          KUNCI_GEMINI: ${{ secrets.KUNCI_GEMINI }}
+        run: python main.py
 
-# Menyimpan naskah ke dalam file teks
-with open("naskah.txt", "w", encoding="utf-8") as f:
-    f.write(naskah)
-
-print("2. Mengubah naskah menjadi suara narator otomatis...")
-# Membersihkan baris baru agar suara tidak terpotong
-naskah_satu_baris = naskah.replace('\n', ' ') 
-
-# Memanggil Edge-TTS
-os.system(f'edge-tts --text "{naskah_satu_baris}" --write-media suara_video.mp3 --voice id-ID-ArdiNeural')
-
-print("SELESAI! Naskah dan Suara MP3 berhasil diproduksi!")
+      - name: Mengamankan Hasil
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hasil-Produksi-Hari-Ini
+          path: |
+            naskah.txt
+            suara_video.mp3
